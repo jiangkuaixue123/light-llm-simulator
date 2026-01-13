@@ -37,6 +37,34 @@ class ModelType(Enum):
     """
     DEEPSEEK_V3 = "deepseek-ai/DeepSeek-V3"
     QWEN3_235B = "Qwen/Qwen3-235B-A22B"
+    QWEN3_235B_E2_L30 = "Qwen/Qwen3-235B-A22B-E2-L30"
+    QWEN3_235B_E2_L50 = "Qwen/Qwen3-235B-A22B-E2-L50"
+    QWEN3_235B_E2_L70 = "Qwen/Qwen3-235B-A22B-E2-L70"
+    QWEN3_235B_E4_L30 = "Qwen/Qwen3-235B-A22B-E4-L30"
+    QWEN3_235B_E4_L50 = "Qwen/Qwen3-235B-A22B-E4-L50"
+    QWEN3_235B_E4_L70 = "Qwen/Qwen3-235B-A22B-E4-L70"
+    QWEN3_235B_E6_L30 = "Qwen/Qwen3-235B-A22B-E6-L30"
+    QWEN3_235B_E6_L50 = "Qwen/Qwen3-235B-A22B-E6-L50"
+    QWEN3_235B_E6_L70 = "Qwen/Qwen3-235B-A22B-E6-L70"
+    QWEN3_235B_E8_L30 = "Qwen/Qwen3-235B-A22B-E8-L30"
+    QWEN3_235B_E8_L50 = "Qwen/Qwen3-235B-A22B-E8-L50"
+    QWEN3_235B_E8_L70 = "Qwen/Qwen3-235B-A22B-E8-L70"
+    QWEN3_235B_E2_L94 = "Qwen/Qwen3-235B-A22B-E2-L94"
+    QWEN3_235B_E4_L94 = "Qwen/Qwen3-235B-A22B-E4-L94"
+    QWEN3_235B_E6_L94 = "Qwen/Qwen3-235B-A22B-E6-L94"
+    QWEN3_235B_E8_L94 = "Qwen/Qwen3-235B-A22B-E8-L94"
+    QWEN3_235B_E12_L30 = "Qwen/Qwen3-235B-A22B-E12-L30"
+    QWEN3_235B_E12_L50 = "Qwen/Qwen3-235B-A22B-E12-L50"
+    QWEN3_235B_E12_L70 = "Qwen/Qwen3-235B-A22B-E12-L70"
+    QWEN3_235B_E12_L94 = "Qwen/Qwen3-235B-A22B-E12-L94"
+    QWEN3_235B_E16_L30 = "Qwen/Qwen3-235B-A22B-E16-L30"
+    QWEN3_235B_E16_L50 = "Qwen/Qwen3-235B-A22B-E16-L50"
+    QWEN3_235B_E16_L70 = "Qwen/Qwen3-235B-A22B-E16-L70"
+    QWEN3_235B_E16_L94 = "Qwen/Qwen3-235B-A22B-E16-L94"
+    QWEN3_235B_E32_L30 = "Qwen/Qwen3-235B-A22B-E32-L30"
+    QWEN3_235B_E32_L50 = "Qwen/Qwen3-235B-A22B-E32-L50"
+    QWEN3_235B_E32_L70 = "Qwen/Qwen3-235B-A22B-E32-L70"
+    QWEN3_235B_E32_L94 = "Qwen/Qwen3-235B-A22B-E32-L94"
 
 
 @dataclass
@@ -123,7 +151,6 @@ class ModelConfig:
         """
         def cfg(**kwargs):
             return kwargs
-
         configs = {
             ModelType.DEEPSEEK_V3: cfg(
                 model_size_b=671, hidden_size=7168, max_kv_length=128000, intermediate_size=18432,
@@ -137,8 +164,150 @@ class ModelConfig:
                 max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
                 num_heads=64, kv_heads=4, num_experts_per_tok=8, num_layers=94, num_moe_layers=94,
                 head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E2_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=2, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E2_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=2, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E2_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=2, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E2_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=2, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E4_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=4, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E4_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=4, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E4_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=4, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E4_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=4, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E6_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=6, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E6_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=6, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E6_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=6, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E6_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=6, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E8_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=8, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E8_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=8, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E8_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=8, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E8_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=8, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            # 新增 E12
+            ModelType.QWEN3_235B_E12_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=12, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E12_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=12, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E12_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=12, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E12_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=12, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            # 新增 E16
+            ModelType.QWEN3_235B_E16_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=16, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E16_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=16, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E16_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=16, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E16_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=16, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
+            # 新增 E32
+            ModelType.QWEN3_235B_E32_L30: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=32, num_layers=30, num_moe_layers=30,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E32_L50: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=32, num_layers=50, num_moe_layers=50,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E32_L70: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=32, num_layers=70, num_moe_layers=70,
+                head_size=128, vocab_size=151936),
+            ModelType.QWEN3_235B_E32_L94: cfg(
+                model_size_b=235, hidden_size=4096, max_kv_length=32768, intermediate_size=12288,
+                max_position_embeddings=40960, moe_intermediate_size=1536, n_routed_experts=128,
+                num_heads=64, kv_heads=4, num_experts_per_tok=32, num_layers=94, num_moe_layers=94,
+                head_size=128, vocab_size=151936),
         }
-
         try:
             return cls(model_type=model_type, **configs[model_type])
         except KeyError as e:
