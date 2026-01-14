@@ -65,7 +65,9 @@ def run_search(args):
                         ffn_tensor_parallel=args.ffn_tensor_parallel
                     )
                     afd_search = AfdSearch(config)
+                    print(f"Begin deploying {args.model_type} with mbn{mbn} tpot{tpot} kv_len{kv_len}")
                     afd_search.deployment()
+                    print(f"End deploying {args.model_type} with mbn{mbn} tpot{tpot} kv_len{kv_len}")
     elif args.serving_mode == "DeepEP":
         for tpot in args.tpot:
             for kv_len in args.kv_len:
