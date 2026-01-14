@@ -128,55 +128,125 @@ class AfdSearch(BaseSearch):
                 total_die = ffn_die + attn_die
                 if total_die % self.config.aichip_config.num_dies_per_node != 0:
                     continue
-                self.config.ffn_bs = attn_bs * self.config.model_config.num_experts_per_tok * attn_die / ffn_die
-                self.config.attn_die = attn_die
-                self.config.ffn_die = ffn_die
-                model = get_model(self.config)
-                moe = model["moe"]
-                moe()
-                # compute per moe layer time
-                moe_time = moe.e2e_time * SEC_2_US
-                dispatch_time = moe.dispatch_time * SEC_2_US
-                combine_time = moe.combine_time * SEC_2_US
-                commu_time = moe.commu_time * SEC_2_US
-                e2e_time_per_moe_layer = max(
-                    attn_time + moe_time + commu_time,
-                    max(attn_time, moe_time) * self.config.micro_batch_num
-                )
 
-                latency_constraint = (
-                    self.config.tpot * MS_2_US * (1 + self.config.multi_token_ratio) / 
-                    self.config.model_config.num_layers
-                )
-                if max(attn_time, moe_time) * self.config.micro_batch_num > latency_constraint:
+                # 二分查找满足时延约束的最大 curr_attn_bs（整数）
+                def evaluate_bs(test_bs: int):
+                    self.config.attn_bs = test_bs
+
+                    # 1) 计算注意力时延与稠密层时延
+                    model = get_model(self.config)
+                    attn = model["attn"]
+                    attn()
+                    curr_attn_time = attn.e2e_time * SEC_2_US
+
+                    if self.config.model_config.num_layers > self.config.model_config.num_moe_layers:
+                        temp_bs = self.config.attn_bs
+                        self.config.attn_bs = test_bs * self.config.micro_batch_num
+                        self.config.ffn_bs = self.config.attn_bs
+
+                        model_dense = get_model(self.config)
+                        attn_dense = model_dense["attn"]
+                        mlp_dense = model_dense["mlp"]
+                        attn_dense()
+                        mlp_dense()
+                        dense_attn_time = attn_dense.e2e_time * SEC_2_US
+                        mlp_time = mlp_dense.e2e_time * SEC_2_US
+                        e2e_time_per_dense_layer = dense_attn_time + mlp_time
+
+                        # 恢复配置
+                        self.config.attn_bs = temp_bs
+                    else:
+                        e2e_time_per_dense_layer = 0.0
+
+                    # 2) 计算 MoE 时延
+                    self.config.ffn_bs = test_bs * self.config.model_config.num_experts_per_tok * attn_die / ffn_die
+                    self.config.attn_die = attn_die
+                    self.config.ffn_die = ffn_die
+
+                    model = get_model(self.config)
+                    moe = model["moe"]
+                    moe()
+
+                    moe_time = moe.e2e_time * SEC_2_US
+                    dispatch_time = moe.dispatch_time * SEC_2_US
+                    combine_time = moe.combine_time * SEC_2_US
+                    commu_time = moe.commu_time * SEC_2_US
+
+                    # 3) 时延约束
+                    e2e_time_per_moe_layer = max(
+                        curr_attn_time + moe_time + commu_time,
+                        max(curr_attn_time, moe_time) * self.config.micro_batch_num
+                    )
+
+                    latency_constraint = (
+                        self.config.tpot * MS_2_US * (1 + self.config.multi_token_ratio) /
+                        self.config.model_config.num_layers
+                    )
+
+                    if max(curr_attn_time, moe_time) * self.config.micro_batch_num > latency_constraint:
+                        return None
+
+                    e2e_time = (
+                        e2e_time_per_dense_layer * self.config.model_config.first_k_dense_replace +
+                        e2e_time_per_moe_layer * self.config.model_config.num_moe_layers
+                    )
+
+                    tpos = self.config.tpot * MS_2_US * (1 + self.config.multi_token_ratio)
+                    if e2e_time > tpos:
+                        return None
+
+                    throughput = (
+                        test_bs * self.config.micro_batch_num * attn_die / total_die / e2e_time *
+                        (1 + self.config.multi_token_ratio) * SEC_2_US
+                    )
+
+                    return {
+                        "attn_bs": test_bs,
+                        "ffn_bs": self.config.ffn_bs,
+                        "curr_attn_time": curr_attn_time,
+                        "moe_time": moe_time,
+                        "dispatch_time": dispatch_time,
+                        "combine_time": combine_time,
+                        "commu_time": commu_time,
+                        "e2e_time": e2e_time,
+                        "e2e_time_per_dense_layer": e2e_time_per_dense_layer,
+                        "e2e_time_per_moe_layer": e2e_time_per_moe_layer,
+                        "throughput": throughput,
+                        "latency_constraint": latency_constraint
+                    }
+
+                low, high = self.config.min_attn_bs, attn_bs
+                best_result = None
+
+                while low <= high:
+                    mid = (low + high) // 2
+                    result = evaluate_bs(mid)
+                    if result is not None:
+                        best_result = result
+                        low = mid + 1
+                    else:
+                        high = mid - 1
+
+                if best_result is None:
                     continue
-
-                e2e_time = (
-                    e2e_time_per_dense_layer * self.config.model_config.first_k_dense_replace + 
-                    e2e_time_per_moe_layer * self.config.model_config.num_moe_layers
-                )
-                throughput = (
-                    attn_bs * self.config.micro_batch_num * attn_die / total_die / e2e_time * 
-                    (1 + self.config.multi_token_ratio) * SEC_2_US
-                )
 
                 logging.info(f"-------AFD Search Result:-------")
                 logging.info(
-                    f"attn_bs: {attn_bs}, ffn_bs: {self.config.ffn_bs}, "
+                    f"attn_bs: {best_result['attn_bs']}, ffn_bs: {best_result['ffn_bs']}, "
                     f"kv_len: {self.config.kv_len}, attn_die: {attn_die}, "
                     f"ffn_die: {ffn_die}, total_die: {total_die}, "
-                    f"attn_time: {attn_time:.2f}us, moe_time: {moe_time:.2f}us, "
-                    f"dispatch_time: {dispatch_time:.2f}us, combine_time: {combine_time:.2f}us, "
-                    f"commu_time: {commu_time:.2f}us, e2e_time: {e2e_time:.2f}us, "
-                    f"latency_per_layer: {latency_constraint:.2f}us, latency:{self.config.tpot} ms"
-                    f"e2e_time_per_dense_layer: {e2e_time_per_dense_layer:.2f}us, "
-                    f"e2e_time_per_moe_layer: {e2e_time_per_moe_layer:.2f}us, throughput: {throughput:.2f}"
+                    f"commu_time: {best_result['commu_time']:.2f}us, e2e_time: {best_result['e2e_time']:.2f}us, "
+                    f"latency_per_layer: {best_result['latency_constraint']:.2f}us, latency:{self.config.tpot} ms, "
+                    f"e2e_time_per_dense_layer: {best_result['e2e_time_per_dense_layer']:.2f}us, "
+                    f"e2e_time_per_moe_layer: {best_result['e2e_time_per_moe_layer']:.2f}us, throughput: {best_result['throughput']:.2f}"
                 )
 
                 self.perf_afd_results.append([
-                    attn_bs, self.config.ffn_bs, self.config.kv_len, attn_die, ffn_die, total_die,
-                    attn_time, moe_time, dispatch_time, combine_time, commu_time, e2e_time / MS_2_US,
-                    e2e_time_per_dense_layer, e2e_time_per_moe_layer, throughput
+                    best_result["attn_bs"], best_result["ffn_bs"], self.config.kv_len, attn_die, ffn_die, total_die,
+                    best_result["curr_attn_time"], best_result["moe_time"], best_result["dispatch_time"],
+                    best_result["combine_time"], best_result["commu_time"], best_result["e2e_time"] / MS_2_US,
+                    best_result["e2e_time_per_dense_layer"], best_result["e2e_time_per_moe_layer"],
+                    best_result["throughput"]
                 ])
 
         columns = [
